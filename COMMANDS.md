@@ -1,6 +1,6 @@
 # Taskflow API - Command Reference
 
-Quick reference for daily development and interview prep.
+Quick reference for daily development.
 
 ---
 
@@ -433,12 +433,12 @@ mvn spring-boot:run | grep -E 'ERROR|WARN|Started'
 
 ## Quick Demo Commands
 
-### "Show me how you run your application"
+### Run application
 ```bash
 mvn spring-boot:run
 ```
 
-### "How do you test your endpoints?"
+### Test endpoints
 ```bash
 curl -X POST http://localhost:8080/api/tasks \
   -H "Content-Type: application/json" \
@@ -447,17 +447,17 @@ curl -X POST http://localhost:8080/api/tasks \
 curl http://localhost:8080/api/tasks | jq
 ```
 
-### "How do you check the database?"
+### Check database
 ```bash
 psql -U taskflow_user -d taskflow -c "SELECT * FROM task_entity;"
 ```
 
-### "How do you run tests?"
+### Run tests
 ```bash
 mvn test
 ```
 
-### "How do you build for deployment?"
+### Deployment build
 ```bash
 mvn clean package -DskipTests
 java -jar target/taskflow-api-0.0.1-SNAPSHOT.jar
@@ -491,4 +491,3 @@ mvn spring-boot:run
 **Last Updated:** November 5, 2025
 **Project:** Taskflow API - Portfolio Project
 **Tech Stack:** Spring Boot 3.5.6, PostgreSQL 14, Java 17
-**Status:** DTOs + Validation + PostgreSQL integration complete ✓
