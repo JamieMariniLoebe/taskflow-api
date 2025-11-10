@@ -1,5 +1,6 @@
 package com.taskflow.task.web;
 
+import com.taskflow.common.exception.TaskNotFoundException;
 import com.taskflow.task.mapper.TaskMapper;
 import com.taskflow.task.persistence.TaskEntity;
 import com.taskflow.task.service.TaskService;
@@ -8,9 +9,7 @@ import com.taskflow.task.web.dto.TaskResponse;
 import com.taskflow.task.web.dto.UpdateTaskRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +49,7 @@ public class TaskController {
         Optional<TaskEntity> retrievedTask = taskService.findById(id);
         return retrievedTask
                 .map(taskMapper::toResponse)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task with id " + id + " not found."));
+                .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
     /*

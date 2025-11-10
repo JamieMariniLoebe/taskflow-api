@@ -1,5 +1,6 @@
 package com.taskflow.task.service;
 
+import com.taskflow.common.exception.TaskNotFoundException;
 import com.taskflow.task.persistence.TaskEntity;
 import com.taskflow.task.persistence.TaskRepository;
 import com.taskflow.task.web.dto.CreateTaskRequest;
@@ -39,7 +40,7 @@ public class TaskService {
     // Replace an existing task, verify it exists first
     public TaskEntity replaceTask(Long id, UpdateTaskRequest newTask) {
         TaskEntity existingTask = taskRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Task with id " + id + " does not exist."));
+                .orElseThrow(() -> new TaskNotFoundException("Task with id " + id + " does not exist."));
 
         existingTask.setTitle(newTask.getTitle());
         existingTask.setDescription(newTask.getDescription());
@@ -56,7 +57,7 @@ public class TaskService {
     public TaskEntity patchTask(Long id, UpdateTaskRequest task) {
 
         TaskEntity origTask = taskRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Task with id " + id + " does not exist."));
+                .orElseThrow(() -> new TaskNotFoundException(id));
 
         if(task.getTitle() != null) {
             origTask.setTitle(task.getTitle());
@@ -85,7 +86,7 @@ public class TaskService {
     // First verify task existence (via ID)
     public String deleteTask(Long id) {
         if(!taskRepository.existsById(id)) {
-            throw new IllegalArgumentException("Task with id " + id + " does not exist.");
+            throw new TaskNotFoundException(id);
         }
         taskRepository.deleteById(id);
         return "SUCCESS: Task with id " + id + " has been deleted.";
