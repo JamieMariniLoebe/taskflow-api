@@ -75,7 +75,7 @@ public class TaskController {
     -- Returns DTO response for updated task to client
      */
     @PutMapping("/{id}")
-    public TaskResponse replaceTask(@PathVariable Long id, @RequestBody UpdateTaskRequest newTask) {
+    public TaskResponse replaceTask(@PathVariable Long id, @Valid @RequestBody UpdateTaskRequest newTask) {
         TaskEntity updatedTask = taskService.replaceTask(id, newTask);
         return taskMapper.toResponse(updatedTask);
     }
@@ -87,7 +87,7 @@ public class TaskController {
     -- Returns DTO response for updated task to client
      */
     @PatchMapping("/{id}")
-    public TaskResponse patchTask(@PathVariable Long id, @RequestBody UpdateTaskRequest task) {
+    public TaskResponse patchTask(@PathVariable Long id, @Valid @RequestBody UpdateTaskRequest task) {
         TaskEntity patchedTask = taskService.patchTask(id, task);
         return taskMapper.toResponse(patchedTask);
     }
