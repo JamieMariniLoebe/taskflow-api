@@ -8,7 +8,6 @@ import com.taskflow.task.web.dto.CreateTaskRequest;
 import com.taskflow.task.web.dto.TaskResponse;
 import com.taskflow.task.web.dto.UpdateTaskRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,11 +17,13 @@ import java.util.Optional;
 @RequestMapping("/api/tasks") // base point for all endpoints in this controller
 public class TaskController {
 
-    @Autowired
-    private TaskService taskService;
+    private final TaskService taskService;
+    private final TaskMapper taskMapper;
 
-    @Autowired
-    private TaskMapper taskMapper;
+    public TaskController(TaskService taskService, TaskMapper taskMapper) {
+        this.taskService = taskService;
+        this.taskMapper = taskMapper;
+    }
 
     /*
     -- Endpoint to get all tasks
