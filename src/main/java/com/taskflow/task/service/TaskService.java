@@ -3,9 +3,7 @@ package com.taskflow.task.service;
 import com.taskflow.common.exception.TaskNotFoundException;
 import com.taskflow.task.persistence.TaskEntity;
 import com.taskflow.task.persistence.TaskRepository;
-import com.taskflow.task.web.dto.CreateTaskRequest;
 import com.taskflow.task.web.dto.UpdateTaskRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,16 +13,18 @@ import java.util.Optional;
 @Service
 public class TaskService {
 
-    @Autowired
-    private TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
+
+    public TaskService(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
+    }
 
     /*
     -- Create and save a new task
     -- Return the newly created task entity
      */
     public TaskEntity saveTask(TaskEntity task) {
-        TaskEntity newTask = taskRepository.save(task);
-        return newTask;
+        return taskRepository.save(task);
     }
 
     // Retrieve all tasks
