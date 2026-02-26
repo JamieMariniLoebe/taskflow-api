@@ -1,11 +1,13 @@
 # Taskflow API
 
-A task management REST API built with Spring Boot 3 and PostgreSQL. This project demonstrates modern backend development practices including DTOs, validation, layered architecture, and database integration.
+A task management REST API built with Spring Boot 3 and PostgreSQL. This project demonstrates modern backend development practices including authentication, DTOs, validation, layered architecture, and database integration.
 
 ## Tech Stack
 
 - **Java 17**
 - **Spring Boot 3.5.6**
+- **Spring Security**
+- **JSON Web Tokens (jjwt)**
 - **PostgreSQL 14**
 - **Spring Data JPA / Hibernate**
 - **Lombok** (reduces boilerplate)
@@ -22,11 +24,34 @@ A task management REST API built with Spring Boot 3 and PostgreSQL. This project
 - Layered architecture (Controller → Service → Repository)
 - Auto-timestamping (createdOn, updatedOn)
 - Environment-based configuration
+- JWT Authentication
+- Role-based endpoint protection
+- BCrypt password hashing
+- Global Exception Handling
 
 ## Architecture
 
 ```
 com.taskflow/
+├── auth/
+│   ├── controller/
+│   │    └── AuthController.java
+│   ├── dto/
+│   │    ├── AuthResponse.java
+│   │    ├── LoginRequest.java
+│   │    └── RegisterRequest.java
+│   └── service/
+│        └── AuthService.java
+├── common/
+│   ├── exception/
+│   │    ├── ErrorResponse.java
+│   │    ├── GlobalExceptionHandler.java
+│   │    └── TaskNotFoundException.java
+│   └── util/
+│       └── JwtUtil.java # JWT class
+├── security/
+│   ├── JwtAuthenticationFilter.java
+│   └── SecurityConfig.java
 ├── task/
 │   ├── web/
 │   │   ├── TaskController.java      # REST endpoints
@@ -41,7 +66,14 @@ com.taskflow/
 │   │   └── TaskRepository.java      # Data access
 │   └── mapper/
 │       └── TaskMapper.java          # DTO ↔ Entity conversion
+├── user/
+│   ├── persistence/
+│   │   ├── UserEntity.java
+│   │   └── UserRepository.java
+│   └── security/
+│      └── UserDetailsServiceImpl.java
 └── TaskflowApiApplication.java      # Application entry point
+
 ```
 
 ## Getting Started
@@ -97,7 +129,16 @@ The API will be available at `http://localhost:8080`
 
 ## API Endpoints
 
+### Authentication
+
+| Method | Endpoint             | Description       |
+|--------|----------------------|-------------------|
+| POST   | `/api/auth/register` | Register new user |
+| POST   | `/api/auth/login`    | Login as user     |
+
 ### Task Management
+
+**All Task Management endpoints require a bearer token**
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -114,6 +155,7 @@ The API will be available at `http://localhost:8080`
 ```bash
 curl -X POST http://localhost:8080/api/tasks \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
   -d '{
     "title": "Complete project",
     "description": "Finish the Spring Boot API",
@@ -125,14 +167,38 @@ curl -X POST http://localhost:8080/api/tasks \
 
 **Get All Tasks:**
 ```bash
-curl http://localhost:8080/api/tasks
+curl http://localhost:8080/api/tasks \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>"
 ```
 
 **Update Task Status (PATCH):**
 ```bash
 curl -X PATCH http://localhost:8080/api/tasks/1 \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
   -d '{"status": "Completed"}'
+```
+
+**Register new user:**
+```bash
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "username",
+    "password": "password",
+    "email": "username@gmail.com"
+  }'
+```
+
+**Login:**
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "username",
+    "password": "password"
+  }'
 ```
 
 ### Response Format
@@ -171,20 +237,18 @@ mvn test jacoco:report
 
 ## Roadmap
 
-### Week 1 (Current)
+### Completed
 - [x] PostgreSQL integration
 - [x] DTO pattern implementation
+- [x] JWT authentication & authorization
+- [x] User entity and registration
 - [x] Input validation
-- [ ] Exception handling with @ControllerAdvice
-- [ ] Unit tests (60% coverage target)
+- [x] Exception handling with @ControllerAdvice
 
-### Week 2
-- [ ] JWT authentication & authorization
-- [ ] User entity and registration
+### Upcoming
+- [ ] Unit tests (60% coverage target)
 - [ ] Docker containerization
 - [ ] AWS deployment (EC2/RDS)
-
-### Week 3
 - [ ] Apache Kafka integration (event-driven architecture)
 - [ ] Observability (logging, metrics, tracing)
 - [ ] API documentation (Swagger/OpenAPI)
@@ -192,11 +256,12 @@ mvn test jacoco:report
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DB_URL` | PostgreSQL connection URL | `jdbc:postgresql://localhost:5432/taskflow` |
-| `DB_USERNAME` | Database username | `taskflow_user` |
-| `DB_PASSWORD` | Database password | `taskflow_password` |
+| Variable     | Description | Default                                     |
+|--------------|-------------|---------------------------------------------|
+| `DB_URL`     | PostgreSQL connection URL | `jdbc:postgresql://localhost:5432/taskflow` |
+| `DB_USERNAME` | Database username | `taskflow_user`                             |
+| `DB_PASSWORD` | Database password | `taskflow_password`                         |
+| `JWT_SECRET`  | Secret key for signing JWTs | (none - must be set)                        |
 
 ## Author
 
