@@ -1,6 +1,7 @@
 package com.taskflow.task.service;
 
 import com.taskflow.common.exception.TaskNotFoundException;
+import com.taskflow.task.mapper.TaskMapper;
 import com.taskflow.task.persistence.TaskEntity;
 import com.taskflow.task.persistence.TaskRepository;
 import com.taskflow.task.web.dto.UpdateTaskRequest;
@@ -14,9 +15,11 @@ import java.util.Optional;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
 
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
+        this.taskMapper = taskMapper;
     }
 
     /*
@@ -40,7 +43,7 @@ public class TaskService {
     // Replace an existing task, verify it exists first
     public TaskEntity replaceTask(Long id, UpdateTaskRequest newTask) {
         TaskEntity existingTask = taskRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException("Task with id " + id + " does not exist."));
+                .orElseThrow(() -> new TaskNotFoundException(id));
 
         existingTask.setTitle(newTask.getTitle());
         existingTask.setDescription(newTask.getDescription());
@@ -59,26 +62,7 @@ public class TaskService {
         TaskEntity origTask = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
 
-        if(task.getTitle() != null) {
-            origTask.setTitle(task.getTitle());
-        }
-        if(task.getDescription() != null) {
-            origTask.setDescription(task.getDescription());
-        }
-        if(task.getStatus() != null) {
-            origTask.setStatus(task.getStatus());
-        }
-        if(task.getPriority() != null) {
-            origTask.setPriority(task.getPriority());
-        }
-        if(task.getDeadline() != null) {
-            origTask.setDeadline(task.getDeadline());
-        }
-        if(task.getAssignee() != null) {
-            origTask.setAssignee(task.getAssignee());
-        }
-        origTask.setUpdatedOn(LocalDateTime.now());
-
+        taskMapper.updateEntity(task, origTask);
         return taskRepository.save(origTask);
     }
 
