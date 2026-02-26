@@ -1,8 +1,8 @@
 # Taskflow API
 
-A production-ready RESTful API for task management built with Spring Boot 3 and PostgreSQL. This project demonstrates modern backend development practices including DTOs, validation, layered architecture, and database integration.
+A task management REST API built with Spring Boot 3 and PostgreSQL. This project demonstrates modern backend development practices including DTOs, validation, layered architecture, and database integration.
 
-## 🚀 Tech Stack
+## Tech Stack
 
 - **Java 17**
 - **Spring Boot 3.5.6**
@@ -12,18 +12,18 @@ A production-ready RESTful API for task management built with Spring Boot 3 and 
 - **Jakarta Validation** (request validation)
 - **Maven** (dependency management)
 
-## ✨ Features
+## Features
 
-- ✅ Full CRUD operations for task management
-- ✅ RESTful API design with proper HTTP methods
-- ✅ DTO pattern (separation of API and database layers)
-- ✅ Request validation with custom error messages
-- ✅ PostgreSQL database integration
-- ✅ Layered architecture (Controller → Service → Repository)
-- ✅ Auto-timestamping (createdOn, updatedOn)
-- ✅ Environment-based configuration
+- Full CRUD operations for task management
+- RESTful API design with proper HTTP methods
+- DTO pattern (separation of API and database layers)
+- Request validation with custom error messages
+- PostgreSQL database integration
+- Layered architecture (Controller → Service → Repository)
+- Auto-timestamping (createdOn, updatedOn)
+- Environment-based configuration
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 com.taskflow/
@@ -44,7 +44,7 @@ com.taskflow/
 └── TaskflowApiApplication.java      # Application entry point
 ```
 
-## 🛠️ Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -95,7 +95,7 @@ mvn spring-boot:run
 
 The API will be available at `http://localhost:8080`
 
-## 📚 API Endpoints
+## API Endpoints
 
 ### Task Management
 
@@ -151,7 +151,7 @@ curl -X PATCH http://localhost:8080/api/tasks/1 \
 }
 ```
 
-## ✅ Validation Rules
+## Validation Rules
 
 - `title`: Required, max 1000 characters
 - `description`: Optional, max 1000 characters
@@ -159,7 +159,7 @@ curl -X PATCH http://localhost:8080/api/tasks/1 \
 - `assignee`: Optional, max 100 characters
 - `priority`: Optional, minimum value 1
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run all tests
@@ -169,7 +169,7 @@ mvn test
 mvn test jacoco:report
 ```
 
-## 🗺️ Roadmap
+## Roadmap
 
 ### Week 1 (Current)
 - [x] PostgreSQL integration
@@ -190,7 +190,7 @@ mvn test jacoco:report
 - [ ] API documentation (Swagger/OpenAPI)
 - [ ] Final polish & optimization
 
-## 📝 Environment Variables
+## Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
@@ -198,11 +198,7 @@ mvn test jacoco:report
 | `DB_USERNAME` | Database username | `taskflow_user` |
 | `DB_PASSWORD` | Database password | `taskflow_password` |
 
-## 🤝 Contributing
-
-This is a portfolio project, but feedback and suggestions are welcome! Feel free to open an issue.
-
-## 👤 Author
+## Author
 
 **Jamie Marini-Loebe**
 - Portfolio: [github.com/JamieMariniLoebe](https://github.com/JamieMariniLoebe)
@@ -210,5 +206,3 @@ This is a portfolio project, but feedback and suggestions are welcome! Feel free
 - Email: jamie.loebe2@gmail.com
 
 ---
-
-**Built with ☕ and Spring Boot**
