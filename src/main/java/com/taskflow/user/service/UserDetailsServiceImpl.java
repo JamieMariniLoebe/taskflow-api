@@ -1,4 +1,4 @@
-package com.taskflow.user.security;
+package com.taskflow.user.service;
 
 import com.taskflow.user.persistence.UserEntity;
 import com.taskflow.user.persistence.UserRepository;
