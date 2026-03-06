@@ -64,7 +64,7 @@ public class TaskController {
     @PostMapping()
     public TaskResponse createTask(@Valid @RequestBody CreateTaskRequest request) {
         TaskEntity entity = taskMapper.toEntity(request);
-        TaskEntity newEntity = taskService.saveTask(entity);
+        TaskEntity newEntity = taskService.createTask(entity);
         return taskMapper.toResponse(newEntity);
     }
 

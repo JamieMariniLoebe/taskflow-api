@@ -1,6 +1,9 @@
 package com.taskflow.task.service;
 
 import com.taskflow.common.exception.TaskNotFoundException;
+import com.taskflow.messaging.TaskEvent;
+import com.taskflow.messaging.TaskEventAction;
+import com.taskflow.messaging.TaskEventProducer;
 import com.taskflow.task.mapper.TaskMapper;
 import com.taskflow.task.persistence.TaskEntity;
 import com.taskflow.task.persistence.TaskRepository;
@@ -8,6 +11,7 @@ import com.taskflow.task.web.dto.UpdateTaskRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,18 +20,23 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
+    private final TaskEventProducer taskEventProducer;
 
-    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
+    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper, TaskEventProducer taskEventProducer) {
         this.taskRepository = taskRepository;
         this.taskMapper = taskMapper;
+        this.taskEventProducer = taskEventProducer;
     }
 
     /*
     -- Create and save a new task
     -- Return the newly created task entity
      */
-    public TaskEntity saveTask(TaskEntity task) {
-        return taskRepository.save(task);
+    public TaskEntity createTask(TaskEntity task) {
+        TaskEntity finalTask = taskRepository.save(task);
+        TaskEvent taskEvent = new TaskEvent(finalTask.getId(), TaskEventAction.CREATED, finalTask.getAssignee(), finalTask.getCreatedOn().atZone(ZoneId.systemDefault()).toInstant());
+        taskEventProducer.publish(taskEvent);
+        return finalTask;
     }
 
     // Retrieve all tasks
@@ -53,7 +62,12 @@ public class TaskService {
         existingTask.setAssignee(newTask.getAssignee());
         existingTask.setUpdatedOn(LocalDateTime.now());
 
-        return taskRepository.save(existingTask);
+        existingTask = taskRepository.save(existingTask);
+
+        TaskEvent taskEvent = new TaskEvent(existingTask.getId(), TaskEventAction.UPDATED, existingTask.getAssignee(), existingTask.getCreatedOn().atZone(ZoneId.systemDefault()).toInstant());
+        taskEventProducer.publish(taskEvent);
+
+        return existingTask;
     }
 
     // Update an existing task, verify it exists first
@@ -63,16 +77,27 @@ public class TaskService {
                 .orElseThrow(() -> new TaskNotFoundException(id));
 
         taskMapper.updateEntity(task, origTask);
-        return taskRepository.save(origTask);
+
+        TaskEntity newTask = taskRepository.save(origTask);
+
+        TaskEvent taskEvent = new TaskEvent(newTask.getId(), TaskEventAction.UPDATED, newTask.getAssignee(), newTask.getCreatedOn().atZone(ZoneId.systemDefault()).toInstant());
+        taskEventProducer.publish(taskEvent);
+
+        return newTask;
     }
 
     // Delete task by id
     // First verify task existence (via ID)
     public String deleteTask(Long id) {
-        if(!taskRepository.existsById(id)) {
-            throw new TaskNotFoundException(id);
-        }
+        TaskEntity myTask = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
+
+        TaskEvent taskEvent = new TaskEvent(myTask.getId(), TaskEventAction.DELETED, myTask.getAssignee(), myTask.getCreatedOn().atZone(ZoneId.systemDefault()).toInstant());
+
         taskRepository.deleteById(id);
+
+        taskEventProducer.publish(taskEvent);
+
         return "SUCCESS: Task with id " + id + " has been deleted.";
     }
 }
