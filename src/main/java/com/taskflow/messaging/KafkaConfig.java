@@ -25,7 +25,7 @@ public class KafkaConfig {
      * @return Consumer container configured with manual ack and retry/DLQ error handling
      */
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, TaskEvent> listenerContainerFactory(ConsumerFactory<String, TaskEvent> consumerFactory, DefaultErrorHandler defaultErrorHandler)
+    public ConcurrentKafkaListenerContainerFactory<String, TaskEvent> kafkaListenerContainerFactory(ConsumerFactory<String, TaskEvent> consumerFactory, DefaultErrorHandler defaultErrorHandler)
     {
         ConcurrentKafkaListenerContainerFactory<String, TaskEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
 
