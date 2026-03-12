@@ -28,6 +28,12 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
 
 volumes:
   db-data:
