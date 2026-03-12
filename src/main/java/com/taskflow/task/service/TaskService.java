@@ -8,6 +8,9 @@ import com.taskflow.task.mapper.TaskMapper;
 import com.taskflow.task.persistence.TaskEntity;
 import com.taskflow.task.persistence.TaskRepository;
 import com.taskflow.task.web.dto.UpdateTaskRequest;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,11 +24,16 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
     private final TaskEventProducer taskEventProducer;
+    private final Counter taskCounter;
 
-    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper, TaskEventProducer taskEventProducer) {
+    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper, TaskEventProducer taskEventProducer, MeterRegistry meterRegistry) {
         this.taskRepository = taskRepository;
         this.taskMapper = taskMapper;
         this.taskEventProducer = taskEventProducer;
+
+        this.taskCounter = meterRegistry.counter("tasks.creation");
+        Gauge.builder("tasks.existing", taskRepository, TaskRepository::count)
+                .register(meterRegistry);
     }
 
     /*
@@ -36,6 +44,9 @@ public class TaskService {
         TaskEntity finalTask = taskRepository.save(task);
         TaskEvent taskEvent = new TaskEvent(finalTask.getId(), TaskEventAction.CREATED, finalTask.getAssignee(), finalTask.getCreatedOn().atZone(ZoneId.systemDefault()).toInstant());
         taskEventProducer.publish(taskEvent);
+
+        taskCounter.increment();
+
         return finalTask;
     }
 
