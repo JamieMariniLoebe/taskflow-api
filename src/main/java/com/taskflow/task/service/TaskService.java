@@ -25,6 +25,7 @@ public class TaskService {
     private final TaskMapper taskMapper;
     private final TaskEventProducer taskEventProducer;
     private final Counter taskCounter;
+    private final Counter taskCompletionCounter;
 
     public TaskService(TaskRepository taskRepository, TaskMapper taskMapper, TaskEventProducer taskEventProducer, MeterRegistry meterRegistry) {
         this.taskRepository = taskRepository;
@@ -32,6 +33,8 @@ public class TaskService {
         this.taskEventProducer = taskEventProducer;
 
         this.taskCounter = meterRegistry.counter("tasks.creation");
+        this.taskCompletionCounter = meterRegistry.counter("tasks.completion");
+
         Gauge.builder("tasks.existing", taskRepository, TaskRepository::count)
                 .register(meterRegistry);
     }
@@ -91,7 +94,17 @@ public class TaskService {
 
         TaskEntity newTask = taskRepository.save(origTask);
 
-        TaskEvent taskEvent = new TaskEvent(newTask.getId(), TaskEventAction.UPDATED, newTask.getAssignee(), newTask.getCreatedOn().atZone(ZoneId.systemDefault()).toInstant());
+        TaskEvent taskEvent;
+
+        if ("COMPLETED".equals(task.getStatus())) {
+            taskEvent = new TaskEvent(newTask.getId(), TaskEventAction.COMPLETED, newTask.getAssignee(), newTask.getCreatedOn().atZone(ZoneId.systemDefault()).toInstant());
+            taskCompletionCounter.increment();
+        }
+
+        else {
+            taskEvent = new TaskEvent(newTask.getId(), TaskEventAction.UPDATED, newTask.getAssignee(), newTask.getCreatedOn().atZone(ZoneId.systemDefault()).toInstant());
+        }
+
         taskEventProducer.publish(taskEvent);
 
         return newTask;
