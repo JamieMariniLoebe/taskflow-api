@@ -1,0 +1,21 @@
+# Ignore Version Control directories
+.git
+.gitignore
+
+#Ignore Maven, IntelliJ and manual folders
+target/
+.idea/
+docs/
+
+#Ignore logs, artifacts and IntelliJ files
+*.iml
+.env
+*.log
+
+#Ignore docker-specific files
+docker-compose.yml
+
+#Ignore readme and Claude folder
+README.md
+.claude/
+
