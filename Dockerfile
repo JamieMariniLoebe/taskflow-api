@@ -10,5 +10,5 @@ WORKDIR /app
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 COPY --from=build /app/target/*.jar app.jar
 USER appuser
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3  CMD wget -q0 http://localhost:8080/actuator/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 CMD wget -qO- http://localhost:8080/actuator/health || exit 1
 ENTRYPOINT ["java", "-Xmx512m", "-jar", "app.jar"]
