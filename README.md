@@ -341,4 +341,3 @@ Load testing results (p50/p95/p99 latency, throughput) coming soon.
 ---
 
 **Jamie Marini-Loebe** — [LinkedIn](https://www.linkedin.com/in/jamiemariniloebe/) · [GitHub](https://github.com/JamieMariniLoebe) · jamie.loebe2@gmail.com
-Re
