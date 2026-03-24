@@ -2,6 +2,8 @@
 
 > Event-driven REST API with Kafka streaming, Prometheus/Grafana observability,
 > and full Docker Compose orchestration. Built with Java 17 and Spring Boot 3.
+> 
+> ![CI/CD](https://github.com/JamieMariniLoebe/taskflow-api/actions/workflows/deploy.yml/badge.svg)
 
 ```mermaid
 graph LR
@@ -42,6 +44,8 @@ the service is healthy before starting.
 
 ![Grafana Dashboard](docs/screenshots/Grafana_Dashboard_1.png)
 ![Grafana Dashboard](docs/screenshots/Grafana_Dashboard_2.png)
+![Grafana Dashboard](docs/screenshots/Grafana_Dashboard_3.png)
+![Grafana Dashboard](docs/screenshots/Grafana_Dashboard_4.png)
 
 The Grafana dashboard monitors TaskFlow using the RED method and custom business metrics:
 
@@ -67,7 +71,18 @@ Alert rules trigger when the error rate exceeds the configured threshold.
 
 ## Deployment
 
-AWS deployment (ECS Fargate + RDS PostgreSQL) and CI/CD pipeline documentation coming soon.
+TaskFlow is deployed to AWS with a fully automated CI/CD pipeline.
+
+**Infrastructure**
+- **ECS Fargate** - serverless container orchestration, no EC2 instances to manage
+- **RDS PostgreSQL** - managed database in a private subnet with automated backups
+- **ECR** - container registry storing Docker images built by CI/CD.
+
+**CI/CD Pipeline** (GitHub Actions):
+`push to main` → run tests → build Docker image → push to ECR → deploy to ECS
+
+Every merge to `main` triggers an automated deployment. The pipeline builds the Docker image, pushes it to ECR, and 
+updates the ECS service with a rolling deployment.
 
 ## Features
 
@@ -149,11 +164,11 @@ com.taskflow/
 - [x] Docker containerization (multi-stage build + Docker Compose)
 - [x] Apache Kafka integration (event-driven architecture)
 - [x] Observability (Prometheus + Grafana metrics, alert rules)
+- [x] AWS deployment (ECS Fargate + RDS)
+- [x] CI/CD pipeline (GitHub Actions)
+- [x] Load testing (k6)
 
 ### Upcoming
-- [ ] AWS deployment (ECS Fargate + RDS)
-- [ ] CI/CD pipeline (GitHub Actions)
-- [ ] Load testing (k6)
 - [ ] API documentation (Swagger/OpenAPI)
 
 ## Getting Started
@@ -291,6 +306,13 @@ curl -X PATCH http://localhost:8080/api/tasks/1 \
   -d '{"status": "Completed"}'
 ```
 
+**Delete Task:**
+```bash
+curl -X DELETE http://localhost:8080/api/tasks/1 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+```
+
 ### Response Format
 
 ```json
@@ -334,7 +356,30 @@ curl -X PATCH http://localhost:8080/api/tasks/1 \
 <details>
 <summary>Load Testing Results</summary>
 
-Load testing results (p50/p95/p99 latency, throughput) coming soon.
+Tested with [k6](https://k6.io/) against the local Docker Compose stack.
+
+**Test Profile:**
+- 50 concurrent virtual users
+- 2-minute staged ramp-up
+- Each VU executes full CRUD cycle: register → login → create task → get tasks → update task → delete task
+
+**Results:**
+
+
+| **Metric**      | **Value** |
+|-----------------|-----------|
+| Total requests  | 4,238     |
+| CRUD iterations | 1,059     |
+| Throughput      | ~35 req/s |
+| Avg latency     | 7.44 ms   |
+| Median (p50)    | 6.08 ms   |
+| p90 latency     | 11.35 ms  |
+| p95 latency     | 14.91 ms  |
+| Max latency     | 155.11 ms |
+| Error rate      | 0%        |
+
+Every request triggers Kafka event publishing and Prometheus metric recording.
+Grafana dashboards captured real-time metrics throughout the test — see the [Observability](#observability) section.
 
 </details>
 
