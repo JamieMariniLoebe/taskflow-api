@@ -41,3 +41,4 @@ build/
 taskdef*.json
 
 DEPLOY_NOTES.md
+COMMANDS.md
